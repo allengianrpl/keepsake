@@ -5,7 +5,7 @@ require_once '../includes/db.php';
 requireLogin();
 
 $user_id = $_SESSION['user_id'];
-$user_name = $_SESSION['user_name'] ?? 'THANUSE';
+$user_name = $_SESSION['user_name'] ?? 'YOU';
 $error = '';
 $success = '';
 

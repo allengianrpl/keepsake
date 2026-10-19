@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-$user_name = $_SESSION['user_name'] ?? 'THANUSE';
+$user_name = $_SESSION['user_name'] ?? 'YOU';
 ?>
 <!DOCTYPE html>
 <html lang="en">

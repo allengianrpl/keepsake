@@ -109,8 +109,20 @@ $collections = $stmt->fetchAll();
         <?php endif; ?>
     </main>
 
-   <footer class="site-footer">
-    KEEPSAKE ARCHIVE SYSTEM // DESIGNED FOR <span><?php echo isset($_SESSION['user_name']) && !empty($_SESSION['user_name']) ? strtoupper(htmlspecialchars($_SESSION['user_name'])) : 'YOU'; ?></span> // ALL SYSTEMS NOMINAL
+  <footer class="site-footer">
+    KEEPSAKE ARCHIVE SYSTEM // DESIGNED FOR <span><?php 
+        // Ensure sessions are active
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Check if a user is actively logged in via session ID
+        if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id']) && isset($_SESSION['user_name'])) {
+            echo strtoupper(htmlspecialchars($_SESSION['user_name']));
+        } else {
+            echo 'YOU';
+        }
+    ?></span> // ALL SYSTEMS NOMINAL
 </footer>
 </body>
 </html>

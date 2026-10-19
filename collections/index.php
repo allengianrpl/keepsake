@@ -109,8 +109,8 @@ $collections = $stmt->fetchAll();
         <?php endif; ?>
     </main>
 
-    <footer class="site-footer">
-        KEEPSAKE ARCHIVE SYSTEM // DESIGNED FOR <span><?php echo strtoupper(htmlspecialchars($user_name)); ?></span> // ALL SYSTEMS NOMINAL
-    </footer>
+   <footer class="site-footer">
+    KEEPSAKE ARCHIVE SYSTEM // DESIGNED FOR <span><?php echo isset($user_name) && !empty($user_name) ? strtoupper(htmlspecialchars($user_name)) : 'YOU'; ?></span> // ALL SYSTEMS NOMINAL
+</footer>
 </body>
 </html>

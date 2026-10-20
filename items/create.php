@@ -111,7 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <form action="create.php" method="POST" style="display: flex; flex-direction: column; gap: 1.2rem;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
+                <?php echo csrf_field(); ?>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem;">
                     <div class="form-group" style="margin: 0;">
                         <label style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.4rem;">CATEGORY:</label>
                         <select name="category_id" required style="background: var(--card-bg); border: 1px solid var(--border-purple); color: var(--neon-cyan); padding: 0.75rem 1rem; border-radius: 6px; width: 100%;">

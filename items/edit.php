@@ -83,6 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php if ($success): ?><p style="color: green;"><?php echo htmlspecialchars($success); ?> <a href="../dashboard.php">Return to Dashboard</a></p><?php endif; ?>
         
         <form action="edit.php?id=<?php echo $item['id']; ?>" method="POST">
+             <?php echo csrf_field(); ?>
             <div>
                 <label>Category:</label>
                 <select name="category_id" required>

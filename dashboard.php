@@ -14,7 +14,8 @@ $catStmt = $pdo->query("SELECT * FROM categories ORDER BY name ASC");
 $categories = $catStmt->fetchAll();
 
 $query = "
-    SELECT items.*, categories.name AS category_name 
+     SELECT items.*, categories.name AS category_name,
+           (SELECT COUNT(*) FROM item_entries WHERE item_entries.item_id = items.id) AS entry_count
     FROM items 
     JOIN categories ON items.category_id = categories.id 
     WHERE items.user_id = ?
@@ -160,10 +161,14 @@ $itemCount = count($items);
                             </a>
                         </div>
                         
-                        <h3 class="card-title"><?php echo htmlspecialchars($item['title']); ?></h3>
+                        <h3 class="card-title">
+                            <a href="items/view.php?id=<?php echo (int)$item['id']; ?>" class="card-title-link"><?php echo htmlspecialchars($item['title']); ?></a>
+                        </h3>
                         <p class="card-desc"><?php echo htmlspecialchars($item['description']); ?></p>
-                        
-                        <div class="card-footer">
+                        <p style="color: var(--text-muted); font-size: 0.75rem; margin: 0.6rem 0 0;">
+                                📋 <?php echo (int)$item['entry_count']; ?> <?php echo (int)$item['entry_count'] === 1 ? 'entry' : 'entries'; ?>
+                            </p>
+                            <div class="card-footer">
                             <span style="color:var(--text-muted);">🕒 <?php echo date('M d', strtotime($item['created_at'])); ?></span>
                             <div>
                                 <a href="items/delete.php?id=<?php echo $item['id']; ?>" onclick="return confirm('Delete this keepsake?');" style="color:var(--text-muted); text-decoration:none; margin-right:8px;">Delete</a>

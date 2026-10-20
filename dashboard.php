@@ -168,15 +168,13 @@ $itemCount = count($items);
                         <p style="color: var(--text-muted); font-size: 0.75rem; margin: 0.6rem 0 0;">
                                 📋 <?php echo (int)$item['entry_count']; ?> <?php echo (int)$item['entry_count'] === 1 ? 'entry' : 'entries'; ?>
                             </p>
-                            <div class="card-footer">
-                            <span style="color:var(--text-muted);">🕒 <?php echo date('M d', strtotime($item['created_at'])); ?></span>
-                            <div>
-                                <a href="items/delete.php?id=<?php echo $item['id']; ?>" onclick="return confirm('Delete this keepsake?');" style="color:var(--text-muted); text-decoration:none; margin-right:8px;">Delete</a>
-                                <?php if (!empty($item['external_url'])): ?>
-                                    <a href="<?php echo htmlspecialchars($item['external_url']); ?>" target="_blank" rel="noopener noreferrer" class="btn-open-link">Open Link ↗</a>
-                                <?php endif; ?>
+                          <div class="card-footer">
+                                <span style="color:var(--text-muted);">🕒 <?php echo date('M d', strtotime($item['created_at'])); ?></span>
+                                <div>
+                                    <a href="items/delete.php?id=<?php echo $item['id']; ?>" onclick="return confirm('Delete this keepsake?');" style="color:var(--text-muted); text-decoration:none; margin-right:8px;">Delete</a>
+                                    <a href="items/view.php?id=<?php echo (int)$item['id']; ?>" class="btn-open-link">Open →</a>
+                                </div>
                             </div>
-                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>

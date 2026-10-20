@@ -118,7 +118,7 @@ $itemCount = count($items);
                 <?php endif; ?>
             <div class="search-input-group">
                 <span style="color:var(--neon-cyan);">🔍</span>
-                <input type="text" name="search" placeholder="Search title, description or tags..." value="<?php echo htmlspecialchars($search); ?>">
+               <input type="text" name="search" placeholder="Search title or description..." value="<?php echo htmlspecialchars($search); ?>">
             </div>
             <div class="search-actions">
                 <select name="category_id" onchange="this.form.submit()">
@@ -130,7 +130,7 @@ $itemCount = count($items);
                     <?php endforeach; ?>
                 </select>
                 <button type="submit" class="btn-nav">Filter</button>
-                <?php if (!empty($search) || $category_filter): ?>
+                 <?php if (!empty($search) || $category_filter || $favorites_only): ?>
                     <a href="dashboard.php" class="btn-nav" style="border-color:var(--neon-pink); color:var(--neon-pink);">Reset</a>
                 <?php endif; ?>
             </div>
@@ -138,11 +138,11 @@ $itemCount = count($items);
 
         <!-- Saved Keepsakes Title Bar -->
         <div class="section-title">
-            <span>🔖 Saved Keepsakes</span>
-            <span style="font-size:0.75rem; border:1px solid var(--neon-cyan); color:var(--neon-cyan); padding:2px 8px; border-radius:12px;">
-                <?php echo $itemCount; ?> Items Found
-            </span>
-        </div>
+                <span>🔖 Saved Keepsakes</span>
+                <span style="font-size:0.75rem; border:1px solid var(--neon-cyan); color:var(--neon-cyan); padding:2px 8px; border-radius:12px;">
+                    <?php echo $itemCount; ?> <?php echo $itemCount === 1 ? 'Item' : 'Items'; ?> Found
+                </span>
+            </div>
 
         <!-- Saved Keepsakes Grid Cards -->
         <?php if (empty($items)): ?>

@@ -1,5 +1,7 @@
 <?php
 // includes/db.php
+date_default_timezone_set('Asia/Manila');   // <- the only new line
+
 $host = getenv('DB_HOST');
 $port = getenv('DB_PORT') ?: '5432';
 $dbname = getenv('DB_NAME') ?: 'postgres';

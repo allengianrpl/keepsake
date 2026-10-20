@@ -8,6 +8,7 @@ $user_id = $_SESSION['user_id'];
 $user_name = $_SESSION['user_name'] ?? 'Agent';
 $search = trim($_GET['search'] ?? '');
 $category_filter = filter_var($_GET['category_id'] ?? 0, FILTER_VALIDATE_INT);
+$favorites_only = ($_GET['favorites'] ?? '') === '1'; 
 
 $catStmt = $pdo->query("SELECT * FROM categories ORDER BY name ASC");
 $categories = $catStmt->fetchAll();
@@ -23,6 +24,10 @@ $params = [$user_id];
 if ($category_filter) {
     $query .= " AND items.category_id = ?";
     $params[] = $category_filter;
+}
+
+if ($favorites_only) {
+    $query .= " AND items.is_favorite = 1";
 }
 
 if (!empty($search)) {
@@ -45,7 +50,7 @@ $itemCount = count($items);
 <head>
     <meta charset="UTF-8">
     <title>KEEPSAKE V2.0 // DASHBOARD</title>
-    <link rel="stylesheet" href="assets/css/style.css?v=2.0">
+    <link rel="stylesheet" href="assets/css/style.css?v=5.0">
 </head>
 <body>
     <header>
@@ -86,7 +91,7 @@ $itemCount = count($items);
             <!-- 4 Quick Actions Box -->
             <div class="widget-box" style="border-color:var(--border-pink);">
                 <div class="quick-grid">
-                    <a href="dashboard.php" class="quick-card">
+                   <a href="dashboard.php?favorites=1" class="quick-card">
                         <span class="icon">❤️</span>
                         <span>Favorites (<?php echo $favCount; ?>)</span>
                     </a>
@@ -98,9 +103,9 @@ $itemCount = count($items);
                         <span class="icon">➕</span>
                         <span>New Item</span>
                     </a>
-                    <a href="dashboard.php" class="quick-card">
-                        <span class="icon">🔀</span>
-                        <span>Random Pick</span>
+                  <a href="items/export.php" class="quick-card">
+                        <span class="icon">⬇️</span>
+                        <span>Export CSV</span>
                     </a>
                 </div>
             </div>
@@ -108,6 +113,9 @@ $itemCount = count($items);
 
         <!-- Search Bar Toolbar -->
         <form method="GET" action="dashboard.php" class="search-toolbar">
+              <?php if ($favorites_only): ?>
+                    <input type="hidden" name="favorites" value="1">
+                <?php endif; ?>
             <div class="search-input-group">
                 <span style="color:var(--neon-cyan);">🔍</span>
                 <input type="text" name="search" placeholder="Search title, description or tags..." value="<?php echo htmlspecialchars($search); ?>">

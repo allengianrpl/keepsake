@@ -2,6 +2,7 @@
 // items/create.php
 require_once '../includes/auth.php';
 require_once '../includes/db.php';
+require_once '../includes/validate.php';
 requireLogin();
 
 $user_id = $_SESSION['user_id'];
@@ -17,32 +18,47 @@ $colStmt->execute([$user_id]);
 $collections = $colStmt->fetchAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = trim($_POST['title'] ?? '');
-    $category_id = filter_var($_POST['category_id'] ?? 0, FILTER_VALIDATE_INT);
-    $collection_id = filter_var($_POST['collection_id'] ?? 0, FILTER_VALIDATE_INT);
-    $description = trim($_POST['description'] ?? '');
-    $external_url = trim($_POST['external_url'] ?? '');
-    $visibility = $_POST['visibility'] ?? 'private';
+    verify_csrf();
 
-    if (empty($title) || !$category_id) {
-        $error = 'Title and category are required fields.';
-    } else {
-        $stmt = $pdo->prepare("INSERT INTO items (user_id, category_id, title, description, external_url, visibility) VALUES (?, ?, ?, ?, ?, ?)");
-        if ($stmt->execute([$user_id, $category_id, $title, $description, $external_url, $visibility])) {
-            $item_id = $pdo->lastInsertId();
+    $title         = trim($_POST['title'] ?? '');
+    $category_id   = filter_var($_POST['category_id'] ?? 0, FILTER_VALIDATE_INT);
+    $collection_id = filter_var($_POST['collection_id'] ?? 0, FILTER_VALIDATE_INT);
+    $description   = trim($_POST['description'] ?? '');
+    $external_url  = clean_url($_POST['external_url'] ?? '');
+    $visibility    = clean_visibility($_POST['visibility'] ?? 'private');
+
+    $error = validate_item($title, $description, $external_url);
+    if (!$error && !$category_id) {
+        $error = 'Please select a category.';
+    }
+
+    if (!$error) {
+        try {
+            $pdo->beginTransaction();
+
+            $stmt = $pdo->prepare("
+                INSERT INTO items (user_id, category_id, title, description, external_url, visibility)
+                VALUES (?, ?, ?, ?, ?, ?)
+                RETURNING id
+            ");
+            $stmt->execute([$user_id, $category_id, $title, $description, $external_url ?: null, $visibility]);
+            $item_id = $stmt->fetchColumn();
 
             if ($collection_id) {
-                $checkCol = $pdo->prepare("SELECT id FROM collections WHERE id = ? AND user_id = ?");
-                $checkCol->execute([$collection_id, $user_id]);
-                if ($checkCol->fetch()) {
-                    $linkStmt = $pdo->prepare("INSERT INTO collection_items (collection_id, item_id) VALUES (?, ?)");
-                    $linkStmt->execute([$collection_id, $item_id]);
+                $check = $pdo->prepare("SELECT id FROM collections WHERE id = ? AND user_id = ?");
+                $check->execute([$collection_id, $user_id]);
+                if ($check->fetch()) {
+                    $link = $pdo->prepare("INSERT INTO collection_items (collection_id, item_id) VALUES (?, ?)");
+                    $link->execute([$collection_id, $item_id]);
                 }
             }
 
+            $pdo->commit();
             $success = 'Keepsake saved successfully into database!';
-        } else {
-            $error = 'Failed to save record. Please try again.';
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            error_log('create item failed: ' . $e->getMessage());
+            $error = 'Could not save the record. Please try again.';
         }
     }
 }
@@ -130,6 +146,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-group" style="margin: 0;">
                     <label style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.4rem;">NOTES / DESCRIPTION:</label>
                     <textarea name="description" placeholder="Why do you want to save this bookmark?" style="background: var(--card-bg); border: 1px solid var(--border-purple); color: var(--neon-cyan); padding: 0.75rem 1rem; border-radius: 6px; height: 100px; width: 100%;"></textarea>
+                </div>
+                <div class="form-group" style="margin: 0;">
+                    <label style="color: var(--text-muted); font-size: 0.75rem; margin-bottom: 0.4rem;">VISIBILITY:</label>
+                    <select name="visibility" style="background: var(--card-bg); border: 1px solid var(--border-purple); color: var(--neon-cyan); padding: 0.75rem 1rem; border-radius: 6px; width: 100%;">
+                        <option value="private">Private</option>
+                        <option value="public">Public</option>
+                    </select>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; margin-top: 0.5rem;">

@@ -10,16 +10,24 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name'] ?? '');
+    verify_csrf();
+
+    $name        = trim($_POST['name'] ?? '');
     $description = trim($_POST['description'] ?? '');
 
-    if (empty($name)) {
+    if ($name === '') {
         $error = 'Collection name is required.';
+    } elseif (mb_strlen($name) > 255) {
+        $error = 'Collection name must be 255 characters or less.';
+    } elseif (mb_strlen($description) > 5000) {
+        $error = 'Description must be 5000 characters or less.';
     } else {
-        $stmt = $pdo->prepare("INSERT INTO collections (user_id, name, description) VALUES (?, ?, ?)");
-        if ($stmt->execute([$user_id, $name, $description])) {
+        try {
+            $stmt = $pdo->prepare("INSERT INTO collections (user_id, name, description) VALUES (?, ?, ?)");
+            $stmt->execute([$user_id, $name, $description]);
             $success = 'Collection directory created successfully!';
-        } else {
+        } catch (PDOException $e) {
+            error_log('create collection failed: ' . $e->getMessage());
             $error = 'Failed to create collection. Please try again.';
         }
     }
@@ -74,7 +82,7 @@ $collections = $stmt->fetchAll();
             <?php if ($error): ?><p style="color: var(--neon-pink); font-size: 0.85rem;"><?php echo htmlspecialchars($error); ?></p><?php endif; ?>
             <?php if ($success): ?><p style="color: var(--neon-cyan); font-size: 0.85rem;"><?php echo htmlspecialchars($success); ?></p><?php endif; ?>
 
-            <form action="index.php" method="POST" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <form action="index.php" method="POST" style="display: flex; gap: 10px; flex-wrap: wrap;"><?php echo csrf_field(); ?>
                 <input type="text" name="name" placeholder="Collection Name (e.g. Bicol Spots & Travel)" required style="flex: 1; min-width: 200px; background: var(--card-bg); border: 1px solid var(--border-purple); color: var(--neon-cyan); padding: 0.6rem 1rem; border-radius: 4px; font-family: inherit;">
                 <input type="text" name="description" placeholder="Description / Notes" style="flex: 2; min-width: 250px; background: var(--card-bg); border: 1px solid var(--border-purple); color: var(--neon-cyan); padding: 0.6rem 1rem; border-radius: 4px; font-family: inherit;">
                 <button type="submit" class="btn-nav" style="background: var(--neon-purple); border-color: var(--neon-purple); color: #fff;">Create Folder</button>

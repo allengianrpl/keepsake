@@ -50,7 +50,7 @@ $itemCount = count($items);
 <head>
     <meta charset="UTF-8">
     <title>KEEPSAKE V2.0 // DASHBOARD</title>
-    <link rel="stylesheet" href="assets/css/style.css?v=2.0">
+    <link rel="stylesheet" href="assets/css/style.css?v=5.0">
 </head>
 <body>
     <header>
